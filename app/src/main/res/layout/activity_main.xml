@@ -32,12 +32,26 @@
         app:layout_constraintTop_toTopOf="parent">
 
 
+        <ImageView
+            android:id="@+id/location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="location"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/location"
+            app:tint="#FFF"
+            />
+
         <TextView
             android:id="@+id/address"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
             android:text="Kraszów"
             android:textSize="30sp"
+            app:layout_constraintStart_toEndOf="@+id/location"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -72,9 +86,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
             android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@+id/minMaxTemp"
-            android:layout_marginTop="60dp">
+            app:layout_constraintTop_toBottomOf="@+id/minMaxTemp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -96,6 +110,7 @@
                     <ImageView
                         android:layout_width="30dp"
                         android:layout_height="30dp"
+                        android:contentDescription="sunrise"
                         app:srcCompat="@drawable/sunrise"
                         app:tint="#FFF" />
 
@@ -131,7 +146,7 @@
                     <ImageView
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:layout_gravity="right"
+                        android:contentDescription="sunset"
                         app:srcCompat="@drawable/sunset"
                         app:tint="#FFF" />
 
@@ -142,14 +157,13 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="right"
+
                         android:text="Zachód słońca" />
 
                     <TextView
                         android:id="@+id/sunset"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="right"
                         android:text="19:40" />
                 </LinearLayout>
 
@@ -178,6 +192,7 @@
                     <ImageView
                         android:layout_width="30dp"
                         android:layout_height="30dp"
+                        android:contentDescription="wet"
                         app:srcCompat="@drawable/wet"
                         app:tint="#FFF" />
 
@@ -213,6 +228,7 @@
                     <ImageView
                         android:layout_width="30dp"
                         android:layout_height="30dp"
+                        android:contentDescription="wind"
                         app:srcCompat="@drawable/wind"
                         app:tint="#FFF" />
 
@@ -229,7 +245,87 @@
                         android:id="@+id/wind"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="50 km/h" />
+                        android:text="50km/h" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                app:layout_constraintTop_toBottomOf="@+id/minMaxTemp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/radius"
+                    android:orientation="vertical"
+                    android:padding="15dp">
+
+
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:contentDescription="pressure"
+                        app:srcCompat="@drawable/pressure"
+                        app:tint="#FFF" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="5dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Ciśnienie" />
+
+                    <TextView
+                        android:id="@+id/pressure"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="1050 hPa" />
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="10dp"
+                    android:layout_height="wrap_content" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/radius"
+                    android:orientation="vertical"
+                    android:padding="15dp">
+
+
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        app:srcCompat="@drawable/temperature"
+                        app:tint="#FFF" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="5dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Odczuwalna temp." />
+
+                    <TextView
+                        android:id="@+id/feelsLike"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="26°C" />
                 </LinearLayout>
 
             </LinearLayout>
