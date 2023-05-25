@@ -59,14 +59,15 @@ class MainActivity : AppCompatActivity() {
             val windSpeed = "${wind.getString("speed")} km/h"
             val sunrise = sys.getLong("sunrise")
             val sunset = sys.getLong("sunset")
+            val timeZone = jsonObj.getInt("timezone")
             val weatherStatus = weather.getString("description").capitalize()
-
+            
             findViewById<TextView>(R.id.address).text = city
             findViewById<TextView>(R.id.temperature).text = temp
             findViewById<TextView>(R.id.weatherStatus).text = weatherStatus
             findViewById<TextView>(R.id.minMaxTemp).text = "${tempMax}/${tempMin}"
-            findViewById<TextView>(R.id.sunrise).text = SimpleDateFormat( "HH:mm", Locale.GERMAN).format(Date(sunrise*1000))
-            findViewById<TextView>(R.id.sunset).text =SimpleDateFormat( "HH:mm", Locale.GERMAN).format(Date(sunset*1000))
+            findViewById<TextView>(R.id.sunrise).text = SimpleDateFormat( "HH:mm", Locale.getDefault()).format(Date( (sunrise+timeZone)*1000))
+            findViewById<TextView>(R.id.sunset).text = SimpleDateFormat( "HH:mm", Locale.getDefault()).format(Date((sunset+timeZone)*1000))
             findViewById<TextView>(R.id.wet).text = humidity
             findViewById<TextView>(R.id.wind).text = windSpeed
             findViewById<TextView>(R.id.pressure).text = pressure
