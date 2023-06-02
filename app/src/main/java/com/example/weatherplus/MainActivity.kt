@@ -3,10 +3,16 @@ package com.example.weatherplus
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import android.text.Editable
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.Button
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
+import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import kotlinx.coroutines.*
 import org.json.JSONObject
 import java.net.URL
@@ -16,23 +22,45 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    val apiKey: String = "5b3e54a7fc9c15a535b069c78b56cae6"
-    val TAG: String = "MainActivity"
-    val city: String = "Wrocław"
+    private val apiKey: String = "5b3e54a7fc9c15a535b069c78b56cae6"
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val data = apiCall(city, apiKey)
-                withContext(Dispatchers.Main){
-                    apiDataHandler(data)
+        findViewById<Button>(R.id.submit).setOnClickListener {
+            val city = findViewById<EditText>(R.id.editAddress).text
+
+            if(city.isEmpty()) {
+                Toast.makeText(this, "Wprowadź miasto!", Toast.LENGTH_LONG).show()
+            }
+            else {
+                val view: View? = this.currentFocus
+                if (view != null) {
+                    val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                    inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
                 }
+
+                findViewById<LinearLayout>(R.id.enterAddress).visibility = View.GONE
+                findViewById<ProgressBar>(R.id.loader).visibility = View.VISIBLE
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    val data = apiCall(city, apiKey)
+                    withContext(Dispatchers.Main){
+                        apiDataHandler(data)
+                        findViewById<ProgressBar>(R.id.loader).visibility = View.GONE
+                    }
+                }
+            }
+        }
+
+        findViewById<Button>(R.id.tryAgain).setOnClickListener {
+            findViewById<Button>(R.id.tryAgain).visibility = View.GONE
+            findViewById<LinearLayout>(R.id.enterAddress).visibility = View.VISIBLE
         }
     }
 
-    suspend fun apiCall (city:String, apiKey: String): String? {
+     private fun apiCall (city: Editable, apiKey: String): String? {
         val response: String? = try{
             URL("https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey&units=metric&lang=pl").readText(Charsets.UTF_8)
         } catch (e: Exception){
@@ -41,10 +69,12 @@ class MainActivity : AppCompatActivity() {
         return response
     }
 
-    suspend fun apiDataHandler(result: String?){
+    @SuppressLint("SetTextI18n")
+    private fun apiDataHandler(result: String?){
         try{
-            val jsonObj = JSONObject(result)
+            val jsonObj = JSONObject(result.toString())
 
+            val city = jsonObj.getString("name")
             val main = jsonObj.getJSONObject("main")
             val sys = jsonObj.getJSONObject("sys")
             val wind = jsonObj.getJSONObject("wind")
@@ -65,20 +95,19 @@ class MainActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.address).text = city
             findViewById<TextView>(R.id.temperature).text = temp
             findViewById<TextView>(R.id.weatherStatus).text = weatherStatus
-            findViewById<TextView>(R.id.minMaxTemp).text = "${tempMax}/${tempMin}"
+            findViewById<TextView>(R.id.minMaxTemp).text = "$tempMax/$tempMin"
             findViewById<TextView>(R.id.sunrise).text = SimpleDateFormat( "HH:mm", Locale.getDefault()).format(Date( (sunrise+timeZone)*1000))
             findViewById<TextView>(R.id.sunset).text = SimpleDateFormat( "HH:mm", Locale.getDefault()).format(Date((sunset+timeZone)*1000))
             findViewById<TextView>(R.id.wet).text = humidity
             findViewById<TextView>(R.id.wind).text = windSpeed
             findViewById<TextView>(R.id.pressure).text = pressure
             findViewById<TextView>(R.id.feelsLike).text = feelsLike
+
+            findViewById<ConstraintLayout>(com.google.android.material.R.id.container).visibility = View.VISIBLE
         }
         catch (e: Exception){
-            findViewById<TextView>(R.id.temperature).text = "NaN"
-
-            delay(3000L)
-            Log.d(TAG, "${e}")
-
+            Toast.makeText(this, "Wyszukiwanie nie powiodło się", Toast.LENGTH_LONG).show()
+            findViewById<Button>(R.id.tryAgain).visibility = View.VISIBLE
         }
     }
 }
