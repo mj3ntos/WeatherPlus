@@ -1,9 +1,11 @@
 package com.example.weatherplus
 
 import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -23,13 +25,19 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
 
     private val apiKey: String = "5b3e54a7fc9c15a535b069c78b56cae6"
+
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val cityPreferences = CityPreferences(this)
+        val storedCity: Editable = Editable.Factory.getInstance().newEditable(cityPreferences.getCity())
+        val editAddress = findViewById<EditText>(R.id.editAddress)
+        editAddress.text = storedCity
+
         findViewById<Button>(R.id.submit).setOnClickListener {
-            val city = findViewById<EditText>(R.id.editAddress).text
+            val city = editAddress.text
 
             if(city.isEmpty()) {
                 Toast.makeText(this, "Wprowadź miasto!", Toast.LENGTH_LONG).show()
@@ -41,14 +49,16 @@ class MainActivity : AppCompatActivity() {
                     inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
                 }
 
-                findViewById<LinearLayout>(R.id.enterAddress).visibility = View.GONE
+                findViewById<ConstraintLayout>(R.id.enterAddress).visibility = View.GONE
                 findViewById<ProgressBar>(R.id.loader).visibility = View.VISIBLE
+
 
                 CoroutineScope(Dispatchers.IO).launch {
                     val data = apiCall(city, apiKey)
                     withContext(Dispatchers.Main){
                         apiDataHandler(data)
                         findViewById<ProgressBar>(R.id.loader).visibility = View.GONE
+                        cityPreferences.saveCity(city.toString())
                     }
                 }
             }
@@ -56,12 +66,13 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.tryAgain).setOnClickListener {
             findViewById<Button>(R.id.tryAgain).visibility = View.GONE
-            findViewById<LinearLayout>(R.id.enterAddress).visibility = View.VISIBLE
+            findViewById<ConstraintLayout>(R.id.enterAddress).visibility = View.VISIBLE
         }
     }
 
      private fun apiCall (city: Editable, apiKey: String): String? {
         val response: String? = try{
+
             URL("https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey&units=metric&lang=pl").readText(Charsets.UTF_8)
         } catch (e: Exception){
             null
@@ -104,6 +115,7 @@ class MainActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.feelsLike).text = feelsLike
 
             findViewById<ConstraintLayout>(com.google.android.material.R.id.container).visibility = View.VISIBLE
+            true
         }
         catch (e: Exception){
             Toast.makeText(this, "Wyszukiwanie nie powiodło się", Toast.LENGTH_LONG).show()

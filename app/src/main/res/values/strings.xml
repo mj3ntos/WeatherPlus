@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">WeatherPlus</string>
+    <string name="currentLocation">Current Location</string>
 </resources>
