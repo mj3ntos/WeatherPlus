@@ -1,16 +1,17 @@
 package com.example.weatherplus
 
 import android.annotation.SuppressLint
-import android.content.ContentValues.TAG
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings
 import android.text.Editable
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -25,11 +26,16 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
 
     private val apiKey: String = "5b3e54a7fc9c15a535b069c78b56cae6"
+    private val airPlaneModeReceiver = AirPlaneModeReceiver()
 
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        if(isAirplaneModeOn(this)){
+            Toast.makeText(this, "Wyłącz tryb samolotowy, aby wyszukać miasto", Toast.LENGTH_LONG).show()
+        }
 
         val cityPreferences = CityPreferences(this)
         val storedCity: Editable = Editable.Factory.getInstance().newEditable(cityPreferences.getCity())
@@ -68,6 +74,16 @@ class MainActivity : AppCompatActivity() {
             findViewById<Button>(R.id.tryAgain).visibility = View.GONE
             findViewById<ConstraintLayout>(R.id.enterAddress).visibility = View.VISIBLE
         }
+
+        registerReceiver(
+            airPlaneModeReceiver,
+            IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED)
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(airPlaneModeReceiver)
     }
 
      private fun apiCall (city: Editable, apiKey: String): String? {
@@ -115,11 +131,14 @@ class MainActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.feelsLike).text = feelsLike
 
             findViewById<ConstraintLayout>(com.google.android.material.R.id.container).visibility = View.VISIBLE
-            true
         }
         catch (e: Exception){
             Toast.makeText(this, "Wyszukiwanie nie powiodło się", Toast.LENGTH_LONG).show()
             findViewById<Button>(R.id.tryAgain).visibility = View.VISIBLE
         }
+    }
+
+    private fun isAirplaneModeOn(context: Context): Boolean {
+        return Settings.Global.getInt(context.contentResolver, Settings.Global.AIRPLANE_MODE_ON, 0) != 0
     }
 }
